@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
 import s from './styles.module.css';
-import { newsAPI } from '../../api/apiNews';
-import { DomainNews } from '../../types/types';
+import { getCategories, newsAPI } from '../../api/apiNews';
 import { NewsBanner } from '../../components/NewsBanner/NewsBanner';
 import { NewsList } from '../../components/NewsList/NewsList';
 import { Skeleton } from '../../components/Skeleton/Skeleton';
 import { Pagination } from '../../components/Pagination/Pagination';
+import { News } from '../../types/types';
+import { Categories } from '../../components/Categories/Categories';
 
 export const Main = () => {
-  const [news, setNews] = useState<DomainNews[]>([]);
+  const [news, setNews] = useState<News[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   const totalPages = 10;
   const pageSize = 10;
@@ -18,7 +21,11 @@ export const Main = () => {
   const fetchNews = async (currentPage: number) => {
     try {
       setIsLoading(true)
-      const response = await newsAPI(currentPage, pageSize);
+      const response = await newsAPI({
+        page_number: currentPage, 
+        page_size: pageSize,
+        category: selectedCategory === 'All' ? null : selectedCategory,
+      });
       setNews(response.news || []);
       // setIsLoading(false)
     } catch (error) {
@@ -28,9 +35,22 @@ export const Main = () => {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await getCategories();
+      setCategories(['All', ...response.categories]);
+    } catch (error) {
+      console.log(error);
+    } 
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   useEffect(() => {
     fetchNews(currentPage);
-  }, [currentPage]);
+  }, [currentPage, selectedCategory]);
 
   const handleNextPage = () => {
     if(currentPage < totalPages) {
@@ -50,6 +70,13 @@ export const Main = () => {
 
   return (
     <main className={s.main}>
+
+      <Categories 
+        categories={categories} 
+        selectedCategory={selectedCategory} 
+        setSelectedCategory={setSelectedCategory}
+      />
+
       {news.length > 0 && !isLoading ? (
         <NewsBanner item={news[0]} />
       ) : (

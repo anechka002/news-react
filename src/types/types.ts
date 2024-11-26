@@ -1,17 +1,23 @@
 export type GetNewsResponse = {
   status: string 
-  news: DomainNews[]
+  news: News[]
   page: number
 }
 
-export type DomainNews = {
-  author: string
-  category: string[]
-  description: string
+export type News = {
   id: string
+  title: string
+  description: string
+  url: string
+  author: string
   image: string
   language: string
+  category: string[]
   published: string
-  title: string
-  url: string
+}
+
+export type GetCategories = {
+  categories: string[]
+  description: string
+  status: string
 }
