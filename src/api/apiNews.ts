@@ -8,9 +8,10 @@ type NewsApiType = {
   page_number: number
   page_size: number
   category: string | null
+  keywords: string
 }
 
-export const newsAPI = async ({page_number = 1, page_size = 10, category} : NewsApiType) => {
+export const newsAPI = async ({page_number = 1, page_size = 10, category, keywords} : NewsApiType) => {
   try {
     const res = await axios.get<GetNewsResponse>(`${BASE_URL}/search`, {
       params: {
@@ -18,6 +19,7 @@ export const newsAPI = async ({page_number = 1, page_size = 10, category} : News
         page_number,
         page_size,
         category,
+        keywords,
       }
     });
     // console.log(res.data)
